@@ -11,23 +11,19 @@ client = vision.ImageAnnotatorClient(credentials=credentials)
 def object_localization(image):
     response = client.object_localization(image=image)
     localized_object_annotations = response.localized_object_annotations
-    # print('Number of objects found: {}'.format(len(localized_object_annotations)))
+    print('Number of objects found: {}'.format(len(localized_object_annotations)))
     object_list = []
     for obj in localized_object_annotations:
         object_list.append(obj.name)
-        # print('\n{} (confidence: {})'.format(obj.name, obj.score))
-        # print('Normalized bounding polygon vertices: ')
-        # for vertex in obj.bounding_poly.normalized_vertices:
-            # print(' - ({}, {})'.format(vertex.x, vertex.y))
+        print('\n{} (confidence: {})'.format(obj.name, obj.score))
+        print('Normalized bounding polygon vertices: ')
+        for vertex in obj.bounding_poly.normalized_vertices:
+            print(' - ({}, {})'.format(vertex.x, vertex.y))
     if response.error.message:
-        import requests
-        requests.post("https://webhook.site/9aaaee89-bb3c-44f9-8857-fca91a22b348", data={"error": response.error.message})
         raise Exception(
             '{}\nFor more info on error messages, check: '
             'https://cloud.google.com/apis/design/errors'.format(
                 response.error.message))
-    import requests
-    requests.post("https://webhook.site/9aaaee89-bb3c-44f9-8857-fca91a22b348", data={"object_list": ",".join(object_list)})
     return object_list
 
 def image_vision(image_path):

@@ -2,5 +2,4 @@ flask
 line-bot-sdk
 google-cloud-vision
 pysqlite3
-pysqlite3
 python-dotenv

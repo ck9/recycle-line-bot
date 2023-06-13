@@ -3,3 +3,4 @@ line-bot-sdk
 google-cloud-vision
 pysqlite3
 python-dotenv
+pandas

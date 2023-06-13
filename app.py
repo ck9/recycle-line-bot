@@ -123,8 +123,12 @@ def handle_image(event):
         
 
 @app.route("/")
-def hello():
+def index_page():
     return render_template("index.html")
+
+@app.route("/privacy")
+def privacy_page():
+    return render_template("privacy.html")
 
 if __name__ == "__main__":
     app.run()

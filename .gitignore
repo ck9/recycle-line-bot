@@ -138,4 +138,7 @@ dmypy.json
 .DS_Store
 
 # Google API key
-vision-ai-key.json
+vision_ai-key.json
+
+# tmp dir
+static/tmp/

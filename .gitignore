@@ -131,12 +131,6 @@ dmypy.json
 # VScode
 .vscode/
 
-# .xml
-*.xml
-
-# .csv
-*.csv
-
 # .db
 *.db
 

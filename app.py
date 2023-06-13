@@ -16,6 +16,8 @@ from linebot.models import (
 )
 import os
 
+from src.search import search_ja
+
 app = Flask(__name__)
 
 # import logging
@@ -53,7 +55,7 @@ def callback():
 def handle_message(event):
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=event.message.text))
+        TextSendMessage(text=search_ja(event.message.text)))
 
 @app.route("/")
 def hello():

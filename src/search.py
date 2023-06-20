@@ -24,13 +24,13 @@ def search_en(object_list):
     for object_name in object_list:
         search_result = df[df['Item name'].str.contains(object_name, na=False)]
         for i, row in search_result.iterrows():
-            if row["ID"] not in objectid_list:
+            if i not in objectid_list:
                 response.append({
                     "name": row["品目名"],
                     "category": row["出し方"],
                     "info": row["出し方のポイント"] if str(row["出し方のポイント"]) != "nan" else "",
                 })
-                objectid_list.append(row["ID"])
+                objectid_list.append(i)
     return response
 
 def main():

@@ -143,21 +143,38 @@ https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html
             "Other": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/"
         }
 
+        carousel_templates = []
         carousel_columns = []
         for i, result in enumerate(search_result):
             # カルーセルの最大表示数は10件のみ
-            if i == 10:
-                break
+            if i % 10 == 9:
+                carousel_templates.append(CarouselTemplate(columns=carousel_columns))
+                carousel_columns = []
+                if i == 29:
+                    break
 
-            carousel_title = result["name"]
-            if len(carousel_title) >= 40:
-                carousel_title = carousel_title[:39] + "…"
-
-            carousel_text = f"【{result['category']}】"
-            if len(result["info"]) > 0:
-                carousel_text += f"\n{result['info']}"
-            if len(carousel_text) >= 60:
-                carousel_text = carousel_text[:59] + "…"
+            if self.user_lang == "ja":
+                # カルーセルタイトル (日本語)
+                carousel_title = result["name"]
+                if len(carousel_title) >= 40:
+                    carousel_title = carousel_title[:39] + "…"
+                # カルーセルテキスト (日本語)
+                carousel_text = f"【{result['category']}】"
+                if len(result["info"]) > 0:
+                    carousel_text += f"\n{result['info']}"
+                if len(carousel_text) >= 60:
+                    carousel_text = carousel_text[:59] + "…"
+            else:
+                # カルーセルタイトル (英語)
+                carousel_title = result["name_en"]
+                if len(carousel_title) >= 40:
+                    carousel_title = carousel_title[:39] + "…"
+                # カルーセルテキスト (英語)
+                carousel_text = f"【{result['category_en']}】"
+                if len(result["info_en"]) > 0:
+                    carousel_text += f"\n{result['info_en']}"
+                if len(carousel_text) >= 60:
+                    carousel_text = carousel_text[:59] + "…"
 
             if result["category"] in yokohama_urls:
                 carousel_url = yokohama_urls[result["category"]]
@@ -176,7 +193,9 @@ https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html
                     ]
                 )
             )
-        return CarouselTemplate(columns=carousel_columns)
+        if len(carousel_columns) > 0:
+            carousel_templates.append(CarouselTemplate(columns=carousel_columns))
+        return carousel_templates
 
     # 画像検索 リスト該当あり時の補足メッセージ
     # 結果をカルーセルで返した後に送信する

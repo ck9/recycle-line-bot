@@ -91,9 +91,11 @@ def handle_message(event):
             return
         # リスト検索結果が存在する場合(カルーセル表示)
         else:
+            send_list = []
+            for carousel_template in LineBot.search_carousel_template(result):
+                send_list.append(TemplateSendMessage(alt_text='検索結果', template=carousel_template))
             line_bot_api.reply_message(
-                event.reply_token,
-                TemplateSendMessage(alt_text='検索結果', template=LineBot.search_carousel_template(result)))
+                event.reply_token, send_list)
             return
     
 # 画像受信時のイベント
@@ -138,11 +140,12 @@ def handle_image(event):
             return
         # リスト検索結果が存在する場合(カルーセル表示+補足メッセージ)
         else:
+            send_list = []
+            for carousel_template in LineBot.search_carousel_template(result):
+                send_list.append(TemplateSendMessage(alt_text='検索結果', template=carousel_template))
+            send_list.append(TextSendMessage(text=LineBot.image_recognized_supplementary_message(object_list)))
             line_bot_api.reply_message(
-                event.reply_token,[
-                    TemplateSendMessage(alt_text='検索結果', template=LineBot.search_carousel_template(result)),
-                    TextSendMessage(text=LineBot.image_recognized_supplementary_message(object_list))
-                ])
+                event.reply_token, send_list)
             return
         
 

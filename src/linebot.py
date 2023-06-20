@@ -41,6 +41,12 @@ class LineBot:
         message_en = "Changed the language setting to English."
         return message_ja if self.user_lang == "ja" else message_en
     
+    def change_user_lang(self, user_id):
+        if self.user_lang == "ja":
+            return self.set_user_lang(user_id, "en")
+        else:
+            return self.set_user_lang(user_id, "ja")
+    
     def get_user_lang(self):
         return self.user_lang
     

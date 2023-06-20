@@ -76,6 +76,10 @@ def handle_message(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=LineBot.set_user_lang(user_id, "en")))
+    elif event.message.text in ["言語切替", "change language"]:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=LineBot.change_user_lang(user_id)))
     # それ以外のメッセージを受信した場合(テキスト名称検索)
     else:
         db_search = search_db.Search()

@@ -50,16 +50,26 @@ class LineBot:
 <利用方法>
 ・ 分別方法を知りたいものの写真を送信するか、名称をチャットで送信してください。
 ・ 分別方法や廃棄時の注意事項を返信でお知らせします。
+・If you want to search in English, please send "English" or “英語”.
 <注意事項>
 ・個人情報を特定できるような写真は送信しないでください。
-・正しい検索結果を得られない場合があります。その際には、別の角度から撮った画像を送信するか、別の名称をチャットで送信してください。"""
-        message_en = """【Yokohama City Garbage Sorting System】
+・正しい検索結果を得られない場合があります。その際には、別の角度から撮った写真を送信するか、別の名称をチャットで送信してください。
+・写真の背景に物が映らないようにしてください。
+・プライバシーポリシーはこちらをご覧ください。
+https://recycle-bot.ck9.jp/privacy 
+"""
+        message_en = """Yokohama City Garbage Separation Search System
 <How to use>
 ・Please send us a photo of the item you want to know how to sort, or send us the name of the item via chat.
 ・We will send you a reply with instructions on how to sort and what to do when disposing of the items.
+・If you want to search in Japanese, please send "Japanese" or “日本語”.
 <Cautions>
 ・Please do not send photos that can identify your personal information.
-・Please do not send photos that may identify personal information. In such cases, please send a picture taken from a different angle or send a different name in the chat."""
+・Please do not send photos that may identify personal information. In such cases, please send a picture taken from a different angle or send a different name in the chat.
+・Please make sure that no objects appear in the background of the photo.
+・Please click here to view our privacy policy.
+https://recycle-bot.ck9.jp/privacy 
+"""
         return message_ja if self.user_lang == "ja" else message_en
 
     # 「使い方」というテキストを受信した時のメッセージ
@@ -85,12 +95,15 @@ https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html"""
     def image_not_recognized_message(self):
         message_ja =  """【認識失敗】
 写真から物体を認識できませんでした。
-別の角度から撮った画像を送信するか、名称をテキストで送信してください。
+別の角度から撮った写真を送信するか、名称をテキストで送信してください。
+写真の背景に物が映らないようにしてください。
 また、横浜市ごみと資源物の出し方一覧表も合わせてご覧ください。
-https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html"""
+https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html
+"""
         message_en = """【Image Recognition failed】
 The object could not be recognized from the photo.
 Please send an image taken from a different angle or send the name as text.
+Please make sure that no objects appear in the background of the photo.
 Please also see the list of how to dispose of garbage and recyclables in Yokohama City.
 https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html"""
         return message_ja if self.user_lang == "ja" else message_en
@@ -103,10 +116,12 @@ https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html"""
         message_ja = """該当するものが見つかりませんでした。
 正しい認識結果でしたか？
 正しい認識結果でなかった場合は、別の角度から撮った画像を送信するか、名称をテキストで送信してください。
+写真の背景に物が映らないようにしてください。
 また、横浜市ごみと資源物の出し方一覧表も合わせてご覧ください。
 https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html"""
         message_en = """No match found.
 If it was not a correct recognition result, please send us an image taken from a different angle or send us the name in text.
+Please make sure that no objects appear in the background of the photo.
 Also, please refer to the list of how to dispose of garbage and recyclables in Yokohama City.
 https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html
 """
@@ -172,10 +187,12 @@ https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html
             message += f"・{obj}\n"
         message_ja = """正しい認識結果でしたか？
 正しい認識結果でなかった場合は、別の角度から撮った画像を送信するか、名称をテキストで送信してください。
+写真の背景に物が映らないようにしてください。
 また、横浜市ごみと資源物の出し方一覧表も合わせてご覧ください。
 https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html"""
         message_en = """Was the recognition result correct?
 If it was not a correct recognition result, please send us an image taken from a different angle or send us the name in text.
+Please make sure that no objects appear in the background of the photo.
 Also, please refer to the list of how to dispose of garbage and recyclables in Yokohama City.
 https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html
 """

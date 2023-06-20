@@ -17,7 +17,7 @@ from linebot.models import (
 import os
 
 from src.search import search_ja, search_en
-from src.vision_ai import image_vision
+import src.image_recognition as img_recognition
 import src.linebot as line_bot
 
 app = Flask(__name__, static_url_path='/static')
@@ -111,8 +111,9 @@ def handle_image(event):
         for chunk in message_content.iter_content():
             f.write(chunk)
 
+    vision_ai = img_recognition.VisionAI()
     # 画像認識
-    object_list = image_vision(os.path.join(img_dir, f"{message_id}.jpg"))
+    object_list = vision_ai.recognize_path(os.path.join(img_dir, f"{message_id}.jpg"))
     # object_list = image_vision("https://recycle-bot.ck9.jp/static/tmp/" + f"{message_id}.jpg")
     
     # 画像をすぐに削除

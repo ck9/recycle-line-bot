@@ -16,8 +16,8 @@ from linebot.models import (
 )
 import os
 
-from src.search import search_ja, search_en
-from src.vision_ai import image_vision
+import src.search as search_db
+import src.image_recognition as img_recognition
 import src.linebot as line_bot
 
 app = Flask(__name__, static_url_path='/static')
@@ -78,10 +78,11 @@ def handle_message(event):
             TextSendMessage(text=LineBot.set_user_lang(user_id, "en")))
     # それ以外のメッセージを受信した場合(テキスト名称検索)
     else:
+        db_search = search_db.Search()
         if LineBot.get_user_lang() == "ja":
-            result = search_ja(event.message.text)
+            result = db_search.search_ja(event.message.text)
         else:
-            result = search_en([event.message.text])
+            result = db_search.search_en([event.message.text])
         # リスト検索結果が0件の場合
         if len(result) == 0:
             line_bot_api.reply_message(
@@ -111,8 +112,9 @@ def handle_image(event):
         for chunk in message_content.iter_content():
             f.write(chunk)
 
+    vision_ai = img_recognition.VisionAI()
     # 画像認識
-    object_list = image_vision(os.path.join(img_dir, f"{message_id}.jpg"))
+    object_list = vision_ai.recognize_path(os.path.join(img_dir, f"{message_id}.jpg"))
     # object_list = image_vision("https://recycle-bot.ck9.jp/static/tmp/" + f"{message_id}.jpg")
     
     # 画像をすぐに削除
@@ -126,7 +128,8 @@ def handle_image(event):
         return
     # 画像認識に成功した場合
     else:
-        result = search_en(object_list)
+        db_search = search_db.Search()
+        result = db_search.search_en(object_list)
         # リスト検索結果が0件の場合
         if len(result) == 0:
             line_bot_api.reply_message(

@@ -1,113 +1,184 @@
-import os
+import os, json
 
-# 友達追加時メッセージ
-def follow_event_message():
-    return """【横浜市ゴミ分別検索システム】
+this_dir = os.path.dirname(os.path.abspath(__file__))
+
+class LineBot:
+
+    user_json_path = os.path.join(this_dir, 'user_info.json')
+    user_lang = "ja"
+
+    def __init__(self, user_id):
+        
+        # json読み込み (存在しない場合は作成)
+        user_lang_dict = {}
+        if not os.path.exists(self.user_json_path):
+            with open(self.user_json_path, 'w') as f:
+                json.dump(user_lang_dict, f)
+        else:
+            with open(self.user_json_path, 'r') as f:
+                user_lang_dict = json.load(f)
+        
+        # ユーザーIDが存在しない場合は追加しjsonを更新
+        if user_id not in user_lang_dict:
+            user_lang_dict[user_id] = "ja"
+            with open(self.user_json_path, 'w') as f:
+                json.dump(user_lang_dict, f)
+
+        # ユーザーIDに対応する言語を取得しuser_langに格納
+        self.user_lang = user_lang_dict[user_id]
+
+    # ユーザーの言語設定を変更 (lang: "ja" or "en")
+    def set_user_lang(self, user_id, lang):
+        if lang not in ["ja", "en"]:
+            return
+        with open(self.user_json_path, 'r') as f:
+            user_lang_dict = json.load(f)
+        user_lang_dict[user_id] = lang
+        with open(self.user_json_path, 'w') as f:
+            json.dump(user_lang_dict, f)
+        self.user_lang = lang
+        message_ja = "言語設定を日本語に変更しました。"
+        message_en = "Changed the language setting to English."
+        return message_ja if self.user_lang == "ja" else message_en
+    
+    def get_user_lang(self):
+        return self.user_lang
+    
+    # 友達追加時メッセージ
+    def follow_event_message(self):
+        message_ja = """【横浜市ゴミ分別検索システム】
 <利用方法>
 ・ 分別方法を知りたいものの写真を送信するか、名称をチャットで送信してください。
 ・ 分別方法や廃棄時の注意事項を返信でお知らせします。
 <注意事項>
 ・個人情報を特定できるような写真は送信しないでください。
 ・正しい検索結果を得られない場合があります。その際には、別の角度から撮った画像を送信するか、別の名称をチャットで送信してください。"""
+        message_en = """【Yokohama City Garbage Sorting System】
+<How to use>
+・Please send us a photo of the item you want to know how to sort, or send us the name of the item via chat.
+・We will send you a reply with instructions on how to sort and what to do when disposing of the items.
+<Cautions>
+・Please do not send photos that can identify your personal information.
+・Please do not send photos that may identify personal information. In such cases, please send a picture taken from a different angle or send a different name in the chat."""
+        return message_ja if self.user_lang == "ja" else message_en
 
-# 「使い方」というテキストを受信した時のメッセージ
-def usage_message():
-    return """【横浜市ゴミ分別検索システム】
-<利用方法>
-・ 分別方法を知りたいものの写真を送信するか、名称をチャットで送信してください。
-・ 分別方法や廃棄時の注意事項を返信でお知らせします。
-<注意事項>
-・個人情報を特定できるような写真は送信しないでください。
-・正しい検索結果を得られない場合があります。その際には、別の角度から撮った画像を送信するか、別の名称をチャットで送信してください。"""
+    # 「使い方」というテキストを受信した時のメッセージ
+    def usage_message(self):
+        # 友だち追加時のメッセージと共通化
+        return self.follow_event_message()
 
-# テキスト検索 リスト該当なし時のメッセージ
-def text_noresult_message():
-    return """【検索結果: 該当なし】
-該当するものが見つかりませんでした。
-別の名称や言い回しを変えてもう一度送信してください。
-また、横浜市ごみと資源物の出し方一覧表も合わせてご覧ください。
+    # テキスト検索 リスト該当なし時のメッセージ
+    def text_noresult_message(self):
+        message_ja =  """【検索結果: 該当なし】
+    該当するものが見つかりませんでした。
+    別の名称や言い回しを変えてもう一度送信してください。
+    また、横浜市ごみと資源物の出し方一覧表も合わせてご覧ください。
+    https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html"""
+        message_en = """【Search result: Not found】
+No matches found.
+Please change another name or wording and submit again.
+Please also see the list of how to dispose of Yokohama City garbage and resources.
 https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html"""
+        return message_ja if self.user_lang == "ja" else message_en
 
-# 画像検索 認識失敗時のメッセージ
-def image_not_recognized_message():
-    return """【認識失敗】
+    # 画像検索 認識失敗時のメッセージ
+    def image_not_recognized_message(self):
+        message_ja =  """【認識失敗】
 写真から物体を認識できませんでした。
 別の角度から撮った画像を送信するか、名称をテキストで送信してください。
 また、横浜市ごみと資源物の出し方一覧表も合わせてご覧ください。
 https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html"""
+        message_en = """【Image Recognition failed】
+The object could not be recognized from the photo.
+Please send an image taken from a different angle or send the name as text.
+Please also see the list of how to dispose of garbage and recyclables in Yokohama City.
+https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html"""
+        return message_ja if self.user_lang == "ja" else message_en
 
-# 画像検索 認識できたがリスト該当なし時のメッセージ
-def image_recognized_noresult_message(object_list):
-    message = "【認識結果】\n"
-    for obj in object_list:
-        message += f"・{obj}\n"
-    message += """該当するものが見つかりませんでした。
+    # 画像検索 認識できたがリスト該当なし時のメッセージ
+    def image_recognized_noresult_message(self, object_list):
+        message = "【認識結果】\n" if self.user_lang == "ja" else "【Recognition result】\n"
+        for obj in object_list:
+            message += f"・{obj}\n"
+        message_ja = """該当するものが見つかりませんでした。
 正しい認識結果でしたか？
 正しい認識結果でなかった場合は、別の角度から撮った画像を送信するか、名称をテキストで送信してください。
 また、横浜市ごみと資源物の出し方一覧表も合わせてご覧ください。
 https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html"""
-    return message
+        message_en = """No match found.
+If it was not a correct recognition result, please send us an image taken from a different angle or send us the name in text.
+Also, please refer to the list of how to dispose of garbage and recyclables in Yokohama City.
+https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html
+"""
+        message += message_ja if self.user_lang == "ja" else message_en
+        return message
 
-# テキスト検索・画像検索共通 リスト該当あり時のカルーセルメッセージ
-def search_carousel_template(search_result):
-    from linebot.models import CarouselTemplate, CarouselColumn, URITemplateAction
-    yokohama_urls = {
-        "燃やすごみ": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/das1.html",
-        "燃えないごみ": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/das11.html",
-        "乾電池": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/das4.html",
-        "スプレー缶": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/das10.html",
-        "缶・びん・ペットボトル": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/das2.html",
-        "小さな金属類": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/das8.html",
-        "プラスチック製容器包装": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/das12.html",
-        "粗大ごみ": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/sodaigomi/",
-        "Other": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/"
-    }
+    # テキスト検索・画像検索共通 リスト該当あり時のカルーセルメッセージ
+    def search_carousel_template(self, search_result):
+        from linebot.models import CarouselTemplate, CarouselColumn, URITemplateAction
+        yokohama_urls = {
+            "燃やすごみ": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/das1.html",
+            "燃えないごみ": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/das11.html",
+            "乾電池": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/das4.html",
+            "スプレー缶": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/das10.html",
+            "缶・びん・ペットボトル": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/das2.html",
+            "小さな金属類": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/das8.html",
+            "プラスチック製容器包装": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/das12.html",
+            "粗大ごみ": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/shushu/sodaigomi/",
+            "Other": "https://www.city.yokohama.lg.jp/kurashi/sumai-kurashi/gomi-recycle/gomi/"
+        }
 
-    carousel_columns = []
-    for i, result in enumerate(search_result):
-        # カルーセルの最大表示数は10件のみ
-        if i == 10:
-            break
+        carousel_columns = []
+        for i, result in enumerate(search_result):
+            # カルーセルの最大表示数は10件のみ
+            if i == 10:
+                break
 
-        carousel_title = result["name"]
-        if len(carousel_title) >= 40:
-            carousel_title = carousel_title[:39] + "…"
+            carousel_title = result["name"]
+            if len(carousel_title) >= 40:
+                carousel_title = carousel_title[:39] + "…"
 
-        carousel_text = f"【{result['category']}】"
-        if len(result["info"]) > 0:
-            carousel_text += f"\n{result['info']}"
-        if len(carousel_text) >= 60:
-            carousel_text = carousel_text[:59] + "…"
+            carousel_text = f"【{result['category']}】"
+            if len(result["info"]) > 0:
+                carousel_text += f"\n{result['info']}"
+            if len(carousel_text) >= 60:
+                carousel_text = carousel_text[:59] + "…"
 
-        if result["category"] in yokohama_urls:
-            carousel_url = yokohama_urls[result["category"]]
-        else:
-            carousel_url = yokohama_urls["Other"]
+            if result["category"] in yokohama_urls:
+                carousel_url = yokohama_urls[result["category"]]
+            else:
+                carousel_url = yokohama_urls["Other"]
 
-        carousel_columns.append(
-            CarouselColumn(
-                title=carousel_title,
-                text=carousel_text,
-                actions=[
-                    URITemplateAction(
-                        label="詳細を見る",
-                        uri=carousel_url
-                    )
-                ]
+            carousel_columns.append(
+                CarouselColumn(
+                    title=carousel_title,
+                    text=carousel_text,
+                    actions=[
+                        URITemplateAction(
+                            label="詳細を見る" if self.user_lang == "ja" else "More info",
+                            uri=carousel_url
+                        )
+                    ]
+                )
             )
-        )
-    return CarouselTemplate(columns=carousel_columns)
+        return CarouselTemplate(columns=carousel_columns)
 
-# 画像検索 リスト該当あり時の補足メッセージ
-# 結果をカルーセルで返した後に送信する
-# 画像認識結果(英)と誤認識用のフォローアップメッセージ
-def image_recognized_supplementary_message(object_list):
-    message = "【認識結果】\n"
-    for obj in object_list:
-        message += f"・{obj}\n"
-    message += """正しい認識結果でしたか？
+    # 画像検索 リスト該当あり時の補足メッセージ
+    # 結果をカルーセルで返した後に送信する
+    # 画像認識結果(英)と誤認識用のフォローアップメッセージ
+    def image_recognized_supplementary_message(self, object_list):
+        message = "【認識結果】\n" if self.user_lang == "ja" else "【Recognition result】\n"
+        for obj in object_list:
+            message += f"・{obj}\n"
+        message_ja = """正しい認識結果でしたか？
 正しい認識結果でなかった場合は、別の角度から撮った画像を送信するか、名称をテキストで送信してください。
 また、横浜市ごみと資源物の出し方一覧表も合わせてご覧ください。
 https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html"""
-    return message
+        message_en = """Was the recognition result correct?
+If it was not a correct recognition result, please send us an image taken from a different angle or send us the name in text.
+Also, please refer to the list of how to dispose of garbage and recyclables in Yokohama City.
+https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html
+"""
+        message += message_ja if self.user_lang == "ja" else message_en
+        return message
 

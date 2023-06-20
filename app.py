@@ -46,40 +46,61 @@ def callback():
 @handler.add(FollowEvent)
 def follow_message(event):
     if event.type == "follow":
+        user_id = event.source.user_id
+        LineBot = line_bot.LineBot(user_id)
+
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=line_bot.follow_event_message()))
+            TextSendMessage(text=LineBot.follow_message()))
     return
 
 # テキスト受信時のイベント
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    user_id = event.source.user_id
+    LineBot = line_bot.LineBot(user_id)
     # 「使い方」というメッセージを受信した場合
-    if event.message.text == "使い方":
+    if event.message.text in ["使い方", "usage", "ヘルプ", "help"]:
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=line_bot.usage_message()))
+            TextSendMessage(text=LineBot.usage_message()))
         return
+    # 「japanese」というメッセージを受信した場合(言語設定変更)
+    elif event.message.text in ["ja", "japanese", "日本語"]:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=LineBot.set_user_lang(user_id, "ja")))
+        return
+    # 「英語」というメッセージを受信した場合
+    elif event.message.text in ["en", "english", "英語"]:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=LineBot.set_user_lang(user_id, "en")))
     # それ以外のメッセージを受信した場合(テキスト名称検索)
     else:
-        result = search_ja(event.message.text)
+        if LineBot.get_user_lang() == "ja":
+            result = search_ja(event.message.text)
+        else:
+            result = search_en([event.message.text])
         # リスト検索結果が0件の場合
         if len(result) == 0:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text=line_bot.text_noresult_message()))
+                TextSendMessage(text=LineBot.text_noresult_message()))
             return
         # リスト検索結果が存在する場合(カルーセル表示)
         else:
             line_bot_api.reply_message(
                 event.reply_token,
-                TemplateSendMessage(alt_text='検索結果', template=line_bot.search_carousel_template(result)))
+                TemplateSendMessage(alt_text='検索結果', template=LineBot.search_carousel_template(result)))
             return
     
 # 画像受信時のイベント
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_image(event):
     message_id = event.message.id
+    user_id = event.source.user_id
+    LineBot = line_bot.LineBot(user_id)
 
     # 画像のバイナリデータを取得して保存
     message_content = line_bot_api.get_message_content(message_id)
@@ -101,7 +122,7 @@ def handle_image(event):
     if len(object_list) == 0:
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=line_bot.image_not_recognized_message()))
+            TextSendMessage(text=LineBot.image_not_recognized_message()))
         return
     # 画像認識に成功した場合
     else:
@@ -110,14 +131,14 @@ def handle_image(event):
         if len(result) == 0:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text=line_bot.image_recognized_noresult_message(object_list)))
+                TextSendMessage(text=LineBot.image_recognized_noresult_message(object_list)))
             return
         # リスト検索結果が存在する場合(カルーセル表示+補足メッセージ)
         else:
             line_bot_api.reply_message(
                 event.reply_token,[
-                    TemplateSendMessage(alt_text='検索結果', template=line_bot.search_carousel_template(result)),
-                    TextSendMessage(text=line_bot.image_recognized_supplementary_message(object_list))
+                    TemplateSendMessage(alt_text='検索結果', template=LineBot.search_carousel_template(result)),
+                    TextSendMessage(text=LineBot.image_recognized_supplementary_message(object_list))
                 ])
             return
         

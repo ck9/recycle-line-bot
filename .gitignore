@@ -142,3 +142,6 @@ vision_ai-key.json
 
 # tmp dir
 static/tmp/
+
+# user info
+user_info.json

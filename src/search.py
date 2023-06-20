@@ -19,16 +19,18 @@ def search_ja(object_name):
 
 # 英語テキスト検索(引数:品目名リスト(List), 戻り値:検索結果(List))
 def search_en(object_list):
+    objectid_list = []
     response = []
     for object_name in object_list:
         search_result = df[df['Item name'].str.contains(object_name, na=False)]
         for i, row in search_result.iterrows():
-            response.append({
-                "name": row["品目名"],
-                "category": row["出し方"],
-                "info": row["出し方のポイント"] if str(row["出し方のポイント"]) != "nan" else "",
-            })
-
+            if row["ID"] not in objectid_list:
+                response.append({
+                    "name": row["品目名"],
+                    "category": row["出し方"],
+                    "info": row["出し方のポイント"] if str(row["出し方のポイント"]) != "nan" else "",
+                })
+                objectid_list.append(row["ID"])
     return response
 
 def main():

@@ -24,6 +24,8 @@ def object_localization(image):
             '{}\nFor more info on error messages, check: '
             'https://cloud.google.com/apis/design/errors'.format(
                 response.error.message))
+    # 重複オブジェクトを削除
+    object_list = list(set(object_list))
     return object_list
 
 def image_vision(image_path):

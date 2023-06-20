@@ -5,7 +5,6 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 class LineBot:
 
     user_json_path = os.path.join(this_dir, 'user_info.json')
-    user_lang = "ja"
 
     def __init__(self, user_id):
         
@@ -26,14 +25,15 @@ class LineBot:
 
         # ユーザーIDに対応する言語を取得しuser_langに格納
         self.user_lang = user_lang_dict[user_id]
+        self.user_id = user_id
 
     # ユーザーの言語設定を変更 (lang: "ja" or "en")
-    def set_user_lang(self, user_id, lang):
+    def set_user_lang(self, lang):
         if lang not in ["ja", "en"]:
             return
         with open(self.user_json_path, 'r') as f:
             user_lang_dict = json.load(f)
-        user_lang_dict[user_id] = lang
+        user_lang_dict[self.user_id] = lang
         with open(self.user_json_path, 'w') as f:
             json.dump(user_lang_dict, f)
         self.user_lang = lang
@@ -41,11 +41,11 @@ class LineBot:
         message_en = "Changed the language setting to English."
         return message_ja if self.user_lang == "ja" else message_en
     
-    def change_user_lang(self, user_id):
+    def change_user_lang(self):
         if self.user_lang == "ja":
-            return self.set_user_lang(user_id, "en")
+            return self.set_user_lang("en")
         else:
-            return self.set_user_lang(user_id, "ja")
+            return self.set_user_lang("ja")
     
     def get_user_lang(self):
         return self.user_lang

@@ -60,26 +60,26 @@ def handle_message(event):
     user_id = event.source.user_id
     LineBot = line_bot.LineBot(user_id)
     # 「使い方」というメッセージを受信した場合
-    if event.message.text in ["使い方", "usage", "ヘルプ", "help"]:
+    if event.message.text.lower() in ["使い方", "usage", "ヘルプ", "help"]:
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=LineBot.usage_message()))
         return
     # 「japanese」というメッセージを受信した場合(言語設定変更)
-    elif event.message.text in ["ja", "japanese", "日本語"]:
+    elif event.message.text.lower() in ["ja", "japanese", "日本語"]:
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=LineBot.set_user_lang(user_id, "ja")))
+            TextSendMessage(text=LineBot.set_user_lang("ja")))
         return
     # 「英語」というメッセージを受信した場合
-    elif event.message.text in ["en", "english", "英語"]:
+    elif event.message.text.lower() in ["en", "english", "英語"]:
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=LineBot.set_user_lang(user_id, "en")))
-    elif event.message.text in ["言語切替", "change language"]:
+            TextSendMessage(text=LineBot.set_user_lang("en")))
+    elif event.message.text.lower() in ["言語切替", "change language"]:
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=LineBot.change_user_lang(user_id)))
+            TextSendMessage(text=LineBot.change_user_lang()))
     # それ以外のメッセージを受信した場合(テキスト名称検索)
     else:
         db_search = search_db.Search()

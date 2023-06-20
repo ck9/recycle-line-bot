@@ -7,33 +7,36 @@ df = pd.read_csv(csv_path, encoding='utf-8', index_col=0)
 
 class Search:
 
+    def gen_response(self, search_results):
+        response = []
+        id_list = []
+        for search_result in search_results:
+            for i, row in search_result.iterrows():
+                if i not in id_list:
+                    id_list.append(i)
+                    response.append({
+                        "name": row["品目名_output"],
+                        "category": row["出し方"],
+                        "info": row["出し方のポイント"] if str(row["出し方のポイント"]) != "nan" else "",
+                        "name_en": row["item_name_output"],
+                        "category_en": row["category"],
+                        "info_en": row["point"] if str(row["point"]) != "nan" else "",
+                    })
+        return response
+
     # 日本語テキスト検索(引数:品目名(String), 戻り値:検索結果(List))
     def search_ja(self, object_name):
         search_result = df[df['品目名'].str.contains(object_name, na=False)]
-        response = []
-        for i, row in search_result.iterrows():
-            response.append({
-                "name": row["品目名"],
-                "category": row["出し方"],
-                "info": row["出し方のポイント"] if str(row["出し方のポイント"]) != "nan" else "",
-            })
-        return response
+        return self.gen_response([search_result])
 
     # 英語テキスト検索(引数:品目名リスト(List), 戻り値:検索結果(List))
     def search_en(self, object_list):
-        objectid_list = []
+        search_results = []
         response = []
         for object_name in object_list:
-            search_result = df[df['Item name'].str.contains(object_name, na=False)]
-            for i, row in search_result.iterrows():
-                if i not in objectid_list:
-                    response.append({
-                        "name": row["品目名"],
-                        "category": row["出し方"],
-                        "info": row["出し方のポイント"] if str(row["出し方のポイント"]) != "nan" else "",
-                    })
-                    objectid_list.append(i)
-        return response
+            search_result = df[df['item_name'].str.contains(object_name, na=False)]
+            search_results.append(search_result)
+        return self.gen_response(search_results)
 
 def main():
     s = Search()

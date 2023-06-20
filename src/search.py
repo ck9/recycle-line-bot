@@ -4,6 +4,7 @@ import pandas as pd
 this_dir = os.path.dirname(os.path.abspath(__file__))
 csv_path = os.path.join(this_dir, 'list.csv')
 df = pd.read_csv(csv_path, encoding='utf-8', index_col=0)
+df = df[df['頭文字'].notnull()]
 
 class Search:
 
@@ -31,10 +32,12 @@ class Search:
 
     # 英語テキスト検索(引数:品目名リスト(List), 戻り値:検索結果(List))
     def search_en(self, object_list):
+        for i in df.index:
+            df.at[i, "item_name"] = str(df.at[i, "item_name"]).lower()
         search_results = []
         response = []
         for object_name in object_list:
-            search_result = df[df['item_name'].str.contains(object_name, na=False)]
+            search_result = df[df['item_name'].str.contains(object_name.lower(), na=False)]
             search_results.append(search_result)
         return self.gen_response(search_results)
 

@@ -36,9 +36,13 @@ class VisionAI:
             content = image_file.read()
         image = vision.Image(content=content)
         return self.object_localization(image)
+    
+    def recognize_url(self, image_url):
+        image = vision.Image()
+        image.source.image_uri = image_url
+        return self.object_localization(image)
         
 if __name__ == '__main__':
-    image = vision.Image()
-    image.source.image_uri = input("img_url:")
     vision_ai = VisionAI()
-    print(vision_ai.object_localization(image))
+    image_uri = input("img_url:")
+    print(vision_ai.recognize_url(image_uri))

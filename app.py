@@ -137,7 +137,7 @@ def handle_image(event):
     # object_list = image_vision("https://recycle-bot.ck9.jp/static/tmp/" + f"{message_id}.jpg")
     
     # 画像をすぐに削除
-    # os.remove(os.path.join(img_dir, f"{message_id}.jpg"))
+    os.remove(os.path.join(img_dir, f"{message_id}.jpg"))
 
     # 画像認識に失敗した場合
     if len(object_list) == 0:

@@ -1,28 +1,16 @@
 import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-import src.search as search_db
+import src.image_recognition as img_rec
 
 def main():
 
     # TODO: 画像認識テストコード
 
-
-
-
-
-    # print("--インスタンス生成--")
-    # # ダミーのユーザーIDを設定
-    # LineBot = line_bot.LineBot(userid_dummy)
-    # print("get_user_lang()出力: "+LineBot.get_user_lang())
-    # print("--言語設定を英語に変更--")
-    # print("set_user_lang('en')出力: "+LineBot.set_user_lang("en"))
-    # print("get_user_lang()出力: "+LineBot.get_user_lang())
-    # print("--言語設定を日本語に変更--")
-    # print("set_user_lang('ja')出力: "+LineBot.set_user_lang("ja"))
-    # print("get_user_lang()出力: "+LineBot.get_user_lang())
-    # print("--言語設定を切り替え--")
-    # print("change_user_lang()出力: "+LineBot.change_user_lang())
-    # print("get_user_lang()出力: "+LineBot.get_user_lang())
+    print("--インスタンス生成--")
+    VisionAI = img_rec.VisionAI()
+    print("--画像URLからオブジェクト検出--")
+    img_url = "https://m.media-amazon.com/images/I/61T9-ew0FdL._AC_UX679_.jpg"
+    print("recognize_url(img_url)出力: "+str(VisionAI.recognize_url(img_url)))
 
     return
 

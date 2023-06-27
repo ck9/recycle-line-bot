@@ -51,7 +51,7 @@ def follow_message(event):
 
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text=LineBot.follow_message()))
+            TextSendMessage(text=LineBot.follow_event_message()))
     return
 
 # テキスト受信時のイベント

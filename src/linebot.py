@@ -68,7 +68,7 @@ https://recycle-bot.ck9.jp/privacy
 <How to use>
 ・Please send us a photo of the item you want to know how to sort, or send us the name of the item via chat.
 ・We will send you a reply with instructions on how to sort and what to do when disposing of the items.
-・If you want to search in Japanese, please send "Japanese" or “日本語”.
+・日本語で検索したい場合は「日本語」または「Japanese」と送信してください。
 <Cautions>
 ・Please do not send photos that can identify your personal information.
 ・Please do not send photos that may identify personal information. In such cases, please send a picture taken from a different angle or send a different name in the chat.
@@ -82,14 +82,36 @@ https://recycle-bot.ck9.jp/privacy
     def usage_message(self):
         # 友だち追加時のメッセージと共通化
         return self.follow_event_message()
+    
+    # 「「画像で検索」というテキストを受信した時のメッセージ
+    def search_by_picture_message(self):
+        message_ja = """【画像で検索】
+分別方法を知りたいものの写真を送信してください。
+分別方法や廃棄時の注意事項を返信でお知らせします。
+画像の背景に物が映らないよう、正面から撮影してください。"""
+        message_en = """【Search by picture】
+Please send us a photo of the item(s) you want to know how to sort.
+We will send you a reply with the sorting method and precautions for disposal.
+Please take a picture from the front so that the object does not appear in the background of the picture."""
+        return message_ja if self.user_lang == "ja" else message_en
 
+    # 「テキストで検索」というテキストを受信した時のメッセージ
+    def search_by_text_message(self):
+        message_ja = """【テキストで検索】
+分別方法を知りたいものの名称をチャットで送信してください。
+分別方法や廃棄時の注意事項を返信でお知らせします。"""
+        message_en = """【Search by text】
+Send us a chat with the name of the item you want to know how to sort.
+We will send you a reply with the sorting method and precautions for disposal."""
+        return message_ja if self.user_lang == "ja" else message_en
+        
     # テキスト検索 リスト該当なし時のメッセージ
     def text_noresult_message(self):
         message_ja =  """【検索結果: 該当なし】
-    該当するものが見つかりませんでした。
-    別の名称や言い回しを変えてもう一度送信してください。
-    また、横浜市ごみと資源物の出し方一覧表も合わせてご覧ください。
-    https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html"""
+該当するものが見つかりませんでした。
+別の名称や言い回しを変えてもう一度送信してください。
+また、横浜市ごみと資源物の出し方一覧表も合わせてご覧ください。
+https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html"""
         message_en = """【Search result: Not found】
 No matches found.
 Please change another name or wording and submit again.

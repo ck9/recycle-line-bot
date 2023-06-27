@@ -65,6 +65,18 @@ def handle_message(event):
             event.reply_token,
             TextSendMessage(text=LineBot.usage_message()))
         return
+    # 「画像で検索」というメッセージを受信した場合
+    elif event.message.text.lower() in ["画像で検索", "写真で検索", "search by image", "search by photo", "search by picture"]:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=LineBot.search_by_picture_message()))
+        return
+    # 「テキストで検索」というメッセージを受信した場合
+    elif event.message.text.lower() in ["テキストで検索", "search by text"]:
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=LineBot.search_by_text_message()))
+        return
     # 「japanese」というメッセージを受信した場合(言語設定変更)
     elif event.message.text.lower() in ["ja", "japanese", "日本語"]:
         line_bot_api.reply_message(
@@ -76,6 +88,7 @@ def handle_message(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=LineBot.set_user_lang("en")))
+    # 「言語切替」というメッセージを受信した場合
     elif event.message.text.lower() in ["言語切替", "change language"]:
         line_bot_api.reply_message(
             event.reply_token,

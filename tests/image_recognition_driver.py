@@ -4,8 +4,6 @@ import src.image_recognition as img_rec
 
 def main():
 
-    # TODO: 画像認識テストコード
-
     print("--インスタンス生成--")
     VisionAI = img_rec.VisionAI()
     print("--画像URLからオブジェクト検出--")

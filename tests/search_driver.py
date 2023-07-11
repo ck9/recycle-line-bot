@@ -4,8 +4,6 @@ import src.search as search
 
 def main():
 
-    # TODO: リスト検索テストコード
-
     print("--インスタンス生成--")
     Search = search.Search()
     print("--日本語検索--")

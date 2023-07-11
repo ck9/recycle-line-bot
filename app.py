@@ -131,13 +131,20 @@ def handle_image(event):
         for chunk in message_content.iter_content():
             f.write(chunk)
 
-    vision_ai = img_recognition.VisionAI()
     # 画像認識
-    object_list = vision_ai.recognize_path(os.path.join(img_dir, f"{message_id}.jpg"))
-    # object_list = image_vision("https://recycle-bot.ck9.jp/static/tmp/" + f"{message_id}.jpg")
+    object_list = []
+    # Vision AI
+    # vision_ai = img_recognition.VisionAI()
+    # object_list += vision_ai.recognize_path(os.path.join(img_dir, f"{message_id}.jpg"))
+    # Amazon Rekognition
+    recognition = img_recognition.Rekognition()
+    object_list += recognition.recognize_path(os.path.join(img_dir, f"{message_id}.jpg"))
+    # 重複削除
+    object_list = list(set(object_list))
+
     
     # 画像をすぐに削除
-    os.remove(os.path.join(img_dir, f"{message_id}.jpg"))
+    # os.remove(os.path.join(img_dir, f"{message_id}.jpg"))
 
     # 画像認識に失敗した場合
     if len(object_list) == 0:

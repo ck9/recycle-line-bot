@@ -4,7 +4,6 @@ import pandas as pd
 this_dir = os.path.dirname(os.path.abspath(__file__))
 csv_path = os.path.join(this_dir, 'list.csv')
 df = pd.read_csv(csv_path, encoding='utf-8', index_col=0)
-df = df[df['頭文字'].notnull()]
 
 class Search:
 
@@ -35,14 +34,31 @@ class Search:
         for i in df.index:
             df.at[i, "item_name"] = str(df.at[i, "item_name"]).lower()
         search_results = []
-        response = []
-        for object_name in object_list:
-            search_result = df[df['item_name'].str.contains(object_name.lower(), na=False)]
+        # 完全一致で検索
+        search_column = ["完全一致1", "完全一致2", "完全一致3"]
+        for cname in search_column:
+            search_result = df[df[cname].isin(object_list)]
             search_results.append(search_result)
+        # ヒットしなければitem_nameの部分一致で検索
+        if len(search_results) == 0:
+            for object_name in object_list:
+                search_result = df[df['item_name'].str.contains(object_name.lower(), na=False)]
+                search_results.append(search_result)
         return self.gen_response(search_results)
+    
+    def import_list(self):
+        df = pd.read_csv(csv_path, encoding='utf-8', index_col=0)
+        df = df[df['頭文字'].notnull()]
+        for i in df.index:
+            df.at[i, "item_name"] = str(df.at[i, "item_name"]).lower()
+            df.at[i, "完全一致1"] = str(df.at[i, "完全一致1"]).lower()
+            df.at[i, "完全一致2"] = str(df.at[i, "完全一致2"]).lower()
+            df.at[i, "完全一致3"] = str(df.at[i, "完全一致3"]).lower()
+        df.to_csv(csv_path, encoding='utf-8')
 
 def main():
     s = Search()
+    s.import_list()
     name = input("name:")
     if len(sys.argv) > 1 and sys.argv[1] == "en":
         print(s.search_en([name]))

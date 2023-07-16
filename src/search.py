@@ -31,8 +31,8 @@ class Search:
 
     # 英語テキスト検索(引数:品目名リスト(List), 戻り値:検索結果(List))
     def search_en(self, object_list):
-        for i in df.index:
-            df.at[i, "item_name"] = str(df.at[i, "item_name"]).lower()
+        for i, object_name in enumerate(object_list):
+            object_list[i] = object_name.lower()
         search_results = []
         # 完全一致で検索
         search_column = ["完全一致1", "完全一致2", "完全一致3"]
@@ -42,7 +42,7 @@ class Search:
         # ヒットしなければitem_nameの部分一致で検索
         if len(search_results) == 0:
             for object_name in object_list:
-                search_result = df[df['item_name'].str.contains(object_name.lower(), na=False)]
+                search_result = df[df['item_name'].str.contains(object_name, na=False)]
                 search_results.append(search_result)
         return self.gen_response(search_results)
     

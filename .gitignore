@@ -145,3 +145,6 @@ static/tmp/
 
 # user info
 user_info.json
+
+# user last object
+user_last_object.json

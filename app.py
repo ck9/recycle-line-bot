@@ -179,9 +179,19 @@ def handle_image(event):
         result = db_search.search_en_perfect(object_list)
         # リスト検索結果が0件の場合
         if len(result) == 0:
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=LineBot.image_recognized_noresult_message(object_list)))
+            result = db_search.search_en(object_list)
+            if len(result) == 0:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text=LineBot.image_recognized_noresult_message(object_list)))
+            else:
+                send_list = []
+                for carousel_template in LineBot.search_carousel_template(result):
+                    send_list.append(TemplateSendMessage(alt_text='検索結果', template=carousel_template))
+                send_list.append(TextSendMessage(text=LineBot.image_recognized_supplementary_message(object_list)))
+                line_bot_api.reply_message(
+                    event.reply_token, send_list)
+                LineBot.set_user_last_object(object_list)
             return
         # リスト検索結果が存在する場合(カルーセル表示+補足メッセージ+他の候補を見るボタン)
         else:

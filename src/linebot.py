@@ -5,6 +5,7 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 class LineBot:
 
     user_json_path = os.path.join(this_dir, 'user_info.json')
+    user_obj_json_path = os.path.join(this_dir, 'user_last_object.json')
 
     def __init__(self, user_id):
         
@@ -16,16 +17,30 @@ class LineBot:
         else:
             with open(self.user_json_path, 'r') as f:
                 user_lang_dict = json.load(f)
+
+        user_obj_dict = {}
+        if not os.path.exists(self.user_obj_json_path):
+            with open(self.user_obj_json_path, 'w') as f:
+                json.dump(user_obj_dict, f)
+        else:
+            with open(self.user_obj_json_path, 'r') as f:
+                user_obj_dict = json.load(f)
         
         # ユーザーIDが存在しない場合は追加しjsonを更新
         if user_id not in user_lang_dict:
             user_lang_dict[user_id] = "ja"
             with open(self.user_json_path, 'w') as f:
                 json.dump(user_lang_dict, f)
+        if user_id not in user_obj_dict:
+            user_obj_dict[user_id] = ["nohistory"]
+            with open(self.user_obj_json_path, 'w') as f:
+                json.dump(user_obj_dict, f)
 
         # ユーザーIDに対応する言語を取得しuser_langに格納
         self.user_lang = user_lang_dict[user_id]
         self.user_id = user_id
+
+        self.user_obj = user_obj_dict[user_id]
 
     # ユーザーの言語設定を変更 (lang: "ja" or "en")
     def set_user_lang(self, lang):
@@ -46,9 +61,21 @@ class LineBot:
             return self.set_user_lang("en")
         else:
             return self.set_user_lang("ja")
+        
+    def set_user_last_object(self, last_object):
+        with open(self.user_obj_json_path, 'r') as f:
+            user_obj_dict = json.load(f)
+        user_obj_dict[self.user_id] = last_object
+        with open(self.user_obj_json_path, 'w') as f:
+            json.dump(user_obj_dict, f)
+        self.user_obj = last_object
+        return
     
     def get_user_lang(self):
         return self.user_lang
+    
+    def get_user_last_object(self):
+        return self.user_obj
     
     # 友達追加時メッセージ
     def follow_event_message(self):
@@ -246,3 +273,19 @@ https://cgi.city.yokohama.lg.jp/shigen/bunbetsu/list.html
         message += message_ja if self.user_lang == "ja" else message_en
         return message
 
+    def image_recognized_supplementary_button_template(self):
+        from linebot.models import CarouselTemplate, CarouselColumn, URITemplateAction, MessageTemplateAction
+        return CarouselTemplate(
+            columns=[
+                CarouselColumn(
+                    text="正しい認識結果でしたか？\n他の候補を表示できます" if self.user_lang == "ja" else "Did you get the right recognition result? There are other search results",
+                    actions=[
+                        MessageTemplateAction(
+                            type="message",
+                            label="他の候補を表示する👀" if self.user_lang == "ja" else "Show other results👀",
+                            text="Other results"
+                        )
+                    ]
+                )
+            ]
+        )

@@ -29,8 +29,8 @@ class Search:
         search_result = df[df['品目名'].str.contains(object_name, na=False)]
         return self.gen_response([search_result])
 
-    # 英語テキスト検索(引数:品目名リスト(List), 戻り値:検索結果(List))
-    def search_en(self, object_list):
+    # 英語完全一致検索(引数:品目名リスト(List), 戻り値:検索結果(List))
+    def search_en_perfect(self, object_list):
         for i, object_name in enumerate(object_list):
             object_list[i] = object_name.lower()
         search_results = []
@@ -39,11 +39,16 @@ class Search:
         for cname in search_column:
             search_result = df[df[cname].isin(object_list)]
             search_results.append(search_result)
-        # ヒットしなければitem_nameの部分一致で検索
-        if len(search_results) == 0:
-            for object_name in object_list:
-                search_result = df[df['item_name'].str.contains(object_name, na=False)]
-                search_results.append(search_result)
+        return self.gen_response(search_results)
+
+    # 英語部分一致検索(引数:品目名リスト(List), 戻り値:検索結果(List))
+    def search_en(self, object_list):
+        for i, object_name in enumerate(object_list):
+            object_list[i] = object_name.lower()
+        search_results = []
+        for object_name in object_list:
+            search_result = df[df['item_name'].str.contains(object_name, na=False)]
+            search_results.append(search_result)
         return self.gen_response(search_results)
     
     def import_list(self):
@@ -61,6 +66,9 @@ def main():
     s.import_list()
     name = input("name:")
     if len(sys.argv) > 1 and sys.argv[1] == "en":
+        print("完全一致検索")
+        print(s.search_en_perfect([name]))
+        print("部分一致検索")
         print(s.search_en([name]))
     else:
         print(s.search_ja(name))

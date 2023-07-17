@@ -93,6 +93,27 @@ def handle_message(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=LineBot.change_user_lang()))
+    # 最後の履歴をもとに部分一致検索を行う
+    elif event.message.text.lower() in ["other results"]:
+        user_last_obj = LineBot.get_user_last_object()
+        send_list = []
+        db_search = search_db.Search()
+        result = db_search.search_en(user_last_obj)
+        # リスト検索結果が0件の場合
+        if len(result) == 0:
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=LineBot.image_recognized_noresult_message(user_last_obj)))
+            return
+        # リスト検索結果が存在する場合(カルーセル表示+補足メッセージ)
+        else:
+            send_list = []
+            for carousel_template in LineBot.search_carousel_template(result):
+                send_list.append(TemplateSendMessage(alt_text='検索結果', template=carousel_template))
+            send_list.append(TextSendMessage(text=LineBot.image_recognized_supplementary_message(user_last_obj)))
+            line_bot_api.reply_message(
+                event.reply_token, send_list)
+            return
     # それ以外のメッセージを受信した場合(テキスト名称検索)
     else:
         db_search = search_db.Search()
@@ -144,7 +165,7 @@ def handle_image(event):
 
     
     # 画像をすぐに削除
-    # os.remove(os.path.join(img_dir, f"{message_id}.jpg"))
+    os.remove(os.path.join(img_dir, f"{message_id}.jpg"))
 
     # 画像認識に失敗した場合
     if len(object_list) == 0:
@@ -155,23 +176,24 @@ def handle_image(event):
     # 画像認識に成功した場合
     else:
         db_search = search_db.Search()
-        result = db_search.search_en(object_list)
+        result = db_search.search_en_perfect(object_list)
         # リスト検索結果が0件の場合
         if len(result) == 0:
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text=LineBot.image_recognized_noresult_message(object_list)))
             return
-        # リスト検索結果が存在する場合(カルーセル表示+補足メッセージ)
+        # リスト検索結果が存在する場合(カルーセル表示+補足メッセージ+他の候補を見るボタン)
         else:
             send_list = []
             for carousel_template in LineBot.search_carousel_template(result):
                 send_list.append(TemplateSendMessage(alt_text='検索結果', template=carousel_template))
             send_list.append(TextSendMessage(text=LineBot.image_recognized_supplementary_message(object_list)))
+            send_list.append(TemplateSendMessage(alt_text='他の候補を見る', template=LineBot.image_recognized_supplementary_button_template()))
             line_bot_api.reply_message(
                 event.reply_token, send_list)
+            LineBot.set_user_last_object(object_list)
             return
-        
 
 @app.route("/")
 def index_page():
